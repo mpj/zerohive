@@ -41,11 +41,11 @@ function analyze(source, callback) {
   try {
     fn = evaluateAsFunction(source);
   } catch (error) {
-    callback({ error: toSimpleError(error) });
+    return callback({ error: toSimpleError(error) });
   }
   
-  if (!_.isFunction(fn))
-    callback({ isFunction: false })
+  if (!_.isFunction(fn)) 
+    return callback({ isFunction: false })
 
   callback({
     isFunction: true,
@@ -55,13 +55,11 @@ function analyze(source, callback) {
 }
 
 function sendToParentWindow(data) {
-  console.log("sending to parent window:", data)
   window.parent.postMessage(data, 'http://zerohive.local:5000');
 }
 
 function onMessageFromParentWindow(event){
   if (event.origin !== 'http://zerohive.local:5000') return;
-  console.log("got message from parent", event.data)
 
   var message = event.data;
   if (message.type === 'analyze' && !!message.source) 
@@ -69,6 +67,9 @@ function onMessageFromParentWindow(event){
 }
 
 window.addEventListener('message', onMessageFromParentWindow, false)
+
+// Tell parent window that we are ready
+sendToParentWindow({ type: 'ready'});
 
 </script>
 </body>
