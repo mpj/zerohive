@@ -31,6 +31,13 @@
     #notification.error {
       color: red;
     }
+
+    #arguments {
+      position: absolute;
+      left: 890px;
+      top: 40px;
+      width: 200px;
+    }
   </style>
 </head>
 <body>
@@ -46,6 +53,12 @@
   </div>
   <textarea data-bind="codeMirror: codeMirror"></textarea>    
 
+  <div id="arguments" data-bind="visible: sandbox.functionArguments()">
+    <h2>Arguments</h2>
+    <ul data-bind="foreach: sandbox.functionArguments">
+      <li data-bind="text: $data"></li>
+    </ul>
+  </div>
 
   <script>
     var viewModel = ZeroHive.mainViewModel();
