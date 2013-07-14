@@ -1,0 +1,74 @@
+<html>
+<head>
+
+  <script src="vendor/knockout-2.3.0.debug.js"></script>
+  <script src="binding-handlers/code-mirror.js"></script>
+  <script src="vendor/codemirror-3.14/lib/codemirror.js"></script>
+  <link rel="stylesheet" href="vendor/normalize.css">
+  <link rel="stylesheet" href="vendor/codemirror-3.14/lib/codemirror.css">
+  <script src="vendor/codemirror-3.14/mode/javascript/javascript.js"></script>
+  <script src="viewmodels/code-mirror.js"></script>
+  <script src="viewmodels/main.js"></script>
+  <style>
+
+    body {
+      padding: 20px;
+    }
+
+    .CodeMirror {
+      position: absolute;
+      top: 40px;
+      background-color: #EBEBEB;
+      width: 820px;
+      font-family: Consolas, Courier;
+      font-size: 18px;
+      padding: 20px;
+    }
+
+    #notification.error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <iframe 
+  src="http://sandbox.zerohive.local:5000/evaluator.html" 
+  id="sandbox" 
+  style="height:0;width:0;position:absolute;"></iframe>
+  <div 
+    id="notification" 
+    data-bind="
+      text: notification.text, 
+      visible: notification.visible,
+      css: notification.class">
+  </div>
+  <textarea data-bind="codeMirror: codeMirror"></textarea>    
+
+  </script>
+  <script>
+
+    var sandboxWindow = document.getElementById("sandbox").contentWindow;
+    
+  
+    var viewModel = ZeroHive.mainViewModel();
+    ko.applyBindings(viewModel);
+
+    console.log("sandboxWindow", sandboxWindow)
+
+    viewModel.codeMirror.value.subscribe(function(newValue) {
+      sandboxWindow.postMessage({
+        type: 'analyze',
+        source: newValue
+      }, 'http://sandbox.zerohive.local:5000')  
+    })
+
+    window.addEventListener('message', function(event) {
+      if (event.origin !== 'http://sandbox.zerohive.local:5000') return;
+
+      console.log("got message", event.data)
+
+    }, false)
+  </script>
+</body>
+
+</html>
