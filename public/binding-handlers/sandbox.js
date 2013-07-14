@@ -18,9 +18,7 @@ ko.bindingHandlers.sandbox = {
       var sandboxWindow = document.getElementById(uniqueId).contentWindow;
 
       function onReady() {
-        console.log("ready!")
         viewModel.onSendRequest(function(messageData) {
-          console.log("Sending message...")
           sandboxWindow.postMessage(messageData, viewModel.authority  + '/');
         });
       }

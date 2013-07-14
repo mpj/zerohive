@@ -46,30 +46,10 @@
   </div>
   <textarea data-bind="codeMirror: codeMirror"></textarea>    
 
-  </script>
+
   <script>
-      var viewModel = ZeroHive.mainViewModel();
+    var viewModel = ZeroHive.mainViewModel();
     ko.applyBindings(viewModel);
-
-
-  /*
-    var sandboxWindow = document.getElementById("sandbox").contentWindow;
-  
-  
-
-    viewModel.codeMirror.value.subscribe(function(newValue) {
-      sandboxWindow.postMessage({
-        type: 'analyze',
-        source: newValue
-      }, 'http://sandbox.zerohive.local:5000')  
-    })
-
-    window.addEventListener('message', function(event) {
-      if (event.origin !== 'http://sandbox.zerohive.local:5000') return;
-
-      console.log("got message", event.data)
-
-    }, false)*/
   </script>
 </body>
 

@@ -32,7 +32,6 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
       _sendRequestQueue.push(
         { messageData: { type: 'analyze', source: source },
         callback: function(data) {
-          console.log("analyze callback")
           self.errorMessage(!!data.error ? data.error.message : null);
           self.functionArguments(data['arguments']);
           self.isFunction(data.isFunction);
