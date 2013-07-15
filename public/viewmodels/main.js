@@ -7,7 +7,7 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
     self.codeMirror = ZeroHive.codeMirrorViewModel();
     self.codeMirror.value(
-      'function square(x, y) {\n' +
+      'function multiply(x, y) {\n' +
       '  return x * y;\n' +
       '}');
 
