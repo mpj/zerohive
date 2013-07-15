@@ -16,7 +16,7 @@ if (typeof(Sandbox) === 'undefined') Sandbox = {};
 
     self.analyze = function(source) {
       work({ type: 'analyze', source: source }, function(data) {
-
+        processError(data.error);
         self.isFunction(data.isFunction);
         if (!!data['arguments'] && !_.isEqual(self.functionArguments(), data['arguments'])) {
           self.functionArguments(data['arguments']);
@@ -25,7 +25,9 @@ if (typeof(Sandbox) === 'undefined') Sandbox = {};
     };
 
     self.execute = function(source, args) {
+
       work({ type: 'execute', source: source, args: args }, function(data) {
+        processError(data.error);
         self.result(data.result);
       });
     };
