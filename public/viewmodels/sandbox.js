@@ -20,6 +20,8 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     self.errorLine = ko.observable(null);
     self.errorColumn = ko.observable(null);
     self.functionArguments = ko.observable([]);
+    
+    self.result = ko.observable(null);
 
     self.onSendRequest = function(fn) {
       _sendRequestHandler = fn;
@@ -28,12 +30,20 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
     self.receive = function(data) {
       _nextReceiveHandler(data);
-      _nextReceiveHandler = null;
     };
 
+
     self.analyze = function(source) {
+      sendMessage({ type: 'analyze', source: source });
+    };
+
+    self.execute = function(source, args) {
+      sendMessage({ type: 'execute', source: source, args: args });
+    };
+
+    var sendMessage = function(messageData) {
       _sendRequestQueue.push(
-        { messageData: { type: 'analyze', source: source },
+        { messageData: messageData,
         callback: function(data) {
           if (!!data.error) {
             self.errorMessage(data.error.message);
@@ -44,22 +54,39 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
             self.errorLine(null);
             self.errorColumn(null);
           }
-          self.functionArguments(data['arguments']);
-          self.isFunction(data.isFunction);
+
+          if (typeof data.result !== 'undefined') {
+            // execution
+            self.result(data.result);
+          } else {
+            // analyze
+            self.functionArguments(data['arguments']);
+            self.isFunction(data.isFunction);
+          }
         } });
       runQueue();
     };
 
+    var running = false;
     function runQueue() {
-
-      if (!_sendRequestHandler) return;
+      if (running) {
+        return;
+      } 
+      running = true;
+      if (!_sendRequestHandler) {
+        running = false;
+        return;
+      }
       var queueItem = _sendRequestQueue.pop();
       if (queueItem) {
         _nextReceiveHandler = function(data) {
           queueItem.callback(data);
+          running = false;
           runQueue();
         };
         _sendRequestHandler(queueItem.messageData);
+      } else {
+        running = false;
       }
     }
 

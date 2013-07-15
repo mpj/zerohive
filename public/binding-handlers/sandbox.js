@@ -6,7 +6,6 @@ ko.bindingHandlers.sandbox = {
       var uniqueId = "sandbox-" + Math.floor((Math.random() * 1000000) + 1).toString();
 
       var src = viewModel.authority + '/' + viewModel.path;
-      console.log("src", src);
       var htmlStr = '' +
         '<iframe ' +
         'src="'+ src + '" ' +

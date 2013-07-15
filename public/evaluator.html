@@ -26,14 +26,20 @@ function toSimpleError(error) {
   return simpleError;
 }
 
-function run(fn, args, callback) {
+function run(source, args, callback) {
   var result;
   try {
-    result = fn.apply(null, args);
+    args = args.map(function(a) { return eval(a); })
+    result = evaluateAsFunction(source).apply(null, args);
   } catch (error) {
-    return callback(toSimpleError(error), null)
+    return callback({
+      error: toSimpleError(error),
+      result: null
+    })
   }
-  return callback(null, result);
+  return callback({
+    result: result
+  });
 }
 
 function analyze(source, callback) {
@@ -64,6 +70,10 @@ function onMessageFromParentWindow(event){
   var message = event.data;
   if (message.type === 'analyze' && !!message.source) 
     analyze(message.source, sendToParentWindow);
+
+  if (message.type === 'execute') {
+    run(message.source, message.args, sendToParentWindow);
+  }
 }
 
 window.addEventListener('message', onMessageFromParentWindow, false)

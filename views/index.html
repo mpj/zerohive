@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="vendor/codemirror-3.14/lib/codemirror.css">
   <script src="vendor/codemirror-3.14/mode/javascript/javascript.js"></script>
   <script src="viewmodels/code-mirror.js"></script>
-  <script src="viewmodels/main.js"></script>
+  <script src="viewmodels/case.js"></script>
   <script src="viewmodels/sandbox.js"></script>
   <script src="viewmodels/main.js"></script>
   <style>
@@ -32,11 +32,16 @@
       color: red;
     }
 
-    #arguments {
+    #cases {
       position: absolute;
       left: 890px;
       top: 40px;
       width: 200px;
+    }
+
+    #cases .case ul li input {
+      display: inline-block;
+      width: 100px;
     }
   </style>
 </head>
@@ -53,11 +58,21 @@
   </div>
   <textarea data-bind="codeMirror: codeMirror"></textarea>    
 
-  <div id="arguments" data-bind="visible: sandbox.functionArguments()">
-    <h2>Arguments</h2>
-    <ul data-bind="foreach: sandbox.functionArguments">
-      <li data-bind="text: $data"></li>
-    </ul>
+  <div id="cases" data-bind="visible: sandbox.functionArguments()">
+    <h2>Cases</h2>
+    <div class="case">
+      <h3>Arguments</h3>
+      <ul data-bind="foreach: newCase().functionArguments">
+        <li>
+          <span data-bind="text: name"></span> =
+          <input data-bind="value: value, valueUpdate: 'afterkeydown'" />
+        </li>
+      </ul>
+      <div class="result">
+        <h3>Result</h3>
+        <span data-bind="text: sandbox.result()"></span>
+      </div>
+    </div>
   </div>
 
   <script>
