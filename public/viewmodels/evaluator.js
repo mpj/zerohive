@@ -1,8 +1,4 @@
-<html>
-<title>Evaluator frame</title>
-<body>
-<script src="vendor/underscore-1.5.1.js"></script>
-<script>
+importScripts('/vendor/underscore-1.5.1.js');
 
 // Returns the parameter names of a function as an array of strings
 function getParameterNames(fn) {
@@ -29,13 +25,13 @@ function toSimpleError(error) {
 function run(source, args, callback) {
   var result;
   try {
-    args = args.map(function(a) { return eval(a); })
+    args = args.map(function(a) { return eval(a); });
     result = evaluateAsFunction(source).apply(null, args);
   } catch (error) {
     return callback({
       error: toSimpleError(error),
       result: null
-    })
+    });
   }
   return callback({
     result: result
@@ -49,26 +45,25 @@ function analyze(source, callback) {
   } catch (error) {
     return callback({ error: toSimpleError(error) });
   }
-  
-  if (!_.isFunction(fn)) 
-    return callback({ isFunction: false })
+
+  if (!_.isFunction(fn))
+    return callback({ isFunction: false });
 
   callback({
     isFunction: true,
     error: null,
-    arguments: getParameterNames(fn)
-  })
+    'arguments': getParameterNames(fn)
+  });
 }
 
 function sendToParentWindow(data) {
-  window.parent.postMessage(data, 'http://zerohive.local:5000');
+  this.postMessage(data);
 }
 
-function onMessageFromParentWindow(event){
-  if (event.origin !== 'http://zerohive.local:5000') return;
+function onMessageFromParentWindow(event) {
 
   var message = event.data;
-  if (message.type === 'analyze' && !!message.source) 
+  if (message.type === 'analyze' && !!message.source);
     analyze(message.source, sendToParentWindow);
 
   if (message.type === 'execute') {
@@ -76,11 +71,7 @@ function onMessageFromParentWindow(event){
   }
 }
 
-window.addEventListener('message', onMessageFromParentWindow, false)
+self.addEventListener('message', onMessageFromParentWindow, false);
 
 // Tell parent window that we are ready
 sendToParentWindow({ type: 'ready'});
-
-</script>
-</body>
-</html>

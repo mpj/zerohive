@@ -4,7 +4,21 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
   // TODO: Encapsulate a bit more
   ZeroHive.sandboxViewModel = function(opts) {
+
     var self = {};
+
+    var worker = new Worker('/viewmodels/evaluator.js');
+
+    worker.addEventListener('message', function(event) {
+      // Special message ready sent by iframe when it's loaded
+      if (event.data.type === 'ready') {
+        self.onSendRequest(function(messageData) {
+          worker.postMessage(messageData);
+        });
+        return;
+      }
+      self.receive(event.data);
+    }, false);
 
     var _nextReceiveHandler = null;
     var _sendRequestHandler = null;
@@ -20,7 +34,7 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     self.errorLine = ko.observable(null);
     self.errorColumn = ko.observable(null);
     self.functionArguments = ko.observable([]);
-    
+
     self.result = ko.observable(null);
 
     self.onSendRequest = function(fn) {
@@ -32,7 +46,6 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
       _nextReceiveHandler(data);
     };
 
-
     self.analyze = function(source) {
       sendMessage({ type: 'analyze', source: source });
     };
@@ -42,6 +55,7 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     };
 
     var sendMessage = function(messageData) {
+      
       _sendRequestQueue.push(
         { messageData: messageData,
         callback: function(data) {
@@ -58,10 +72,12 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
           if (typeof data.result !== 'undefined') {
             // execution
             self.result(data.result);
-          } else {
+          } else if(typeof data['arguments'] !== 'undefined' && typeof data.isFunction !== 'undefined') {
             // analyze
-            self.functionArguments(data['arguments']);
-            self.isFunction(data.isFunction);
+            if (self.functionArguments().join(',') !== data['arguments'].join(',')) {
+              self.functionArguments(data['arguments']);
+              self.isFunction(data.isFunction);
+            }
           }
         } });
       runQueue();
@@ -71,7 +87,7 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     function runQueue() {
       if (running) {
         return;
-      } 
+      };
       running = true;
       if (!_sendRequestHandler) {
         running = false;
