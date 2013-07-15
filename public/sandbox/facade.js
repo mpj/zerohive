@@ -2,7 +2,6 @@ if (typeof(Sandbox) === 'undefined') Sandbox = {};
 
 (function() {
 
-  // TODO: Encapsulate a bit more
   Sandbox.facade = function() {
 
     var self = {};
