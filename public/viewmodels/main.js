@@ -11,10 +11,7 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
       '  return x * y;\n' +
       '}');
 
-    self.sandbox = ZeroHive.sandboxViewModel({
-      authority: 'http://sandbox.zerohive.local:5000',
-      path: 'evaluator.html'
-    });
+    self.sandbox = Sandbox.facade();
 
     self.newCase = ko.observable(null);
 

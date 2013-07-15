@@ -1,9 +1,9 @@
-if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
+if (typeof(Sandbox) === 'undefined') Sandbox = {};
 
 (function() {
 
   // TODO: Encapsulate a bit more
-  ZeroHive.sandboxViewModel = function() {
+  Sandbox.facade = function() {
 
     var self = {};
 
@@ -32,7 +32,7 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     };
 
     var work = function(message, callback) {
-      var worker = new Worker('/viewmodels/evaluator.js');
+      var worker = new Worker('/sandbox/worker.js');
       var onReady = function(e) {
         if (e.data.type !== 'ready')
           throw new Error('Expected first message to be ready event');
