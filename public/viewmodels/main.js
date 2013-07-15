@@ -22,8 +22,13 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
 		self.notification = {
 			text: ko.computed(function() {
-        if (self.sandbox.isFunction() === false) return 'Your code must evaluate to a function'
-        if (self.sandbox.errorMessage() !== 'null') return self.sandbox.errorMessage();
+        if (self.sandbox.isFunction() === false) return 'Your code must evaluate to a function';
+        if (self.sandbox.errorMessage() !== 'null') {
+          var message = self.sandbox.errorMessage();
+          if (self.sandbox.errorLine())
+            message = "Line " + self.sandbox.errorLine + ": " + message;
+          return message;
+        }
 
       }),
 			visible: ko.observable(true),
