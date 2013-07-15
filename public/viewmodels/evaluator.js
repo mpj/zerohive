@@ -57,14 +57,15 @@ function analyze(source, callback) {
 }
 
 function sendToParentWindow(data) {
-  this.postMessage(data);
+  self.postMessage(data);
 }
 
 function onMessageFromParentWindow(event) {
 
   var message = event.data;
-  if (message.type === 'analyze' && !!message.source);
+  if (message.type === 'analyze' && !!message.source) {
     analyze(message.source, sendToParentWindow);
+  }
 
   if (message.type === 'execute') {
     run(message.source, message.args, sendToParentWindow);
