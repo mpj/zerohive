@@ -22,57 +22,53 @@ function toSimpleError(error) {
   return simpleError;
 }
 
-function run(source, args, callback) {
+function run(source, args) {
   var result;
   try {
     args = args.map(function(a) { return eval(a); });
     result = evaluateAsFunction(source).apply(null, args);
   } catch (error) {
-    return callback({
+    return self.postMessage({
       error: toSimpleError(error),
       result: null
     });
   }
-  return callback({
+  return self.postMessage({
     result: result
   });
 }
 
-function analyze(source, callback) {
+function analyze(source) {
   var fn;
   try {
     fn = evaluateAsFunction(source);
   } catch (error) {
-    return callback({ error: toSimpleError(error) });
+    return self.postMessage({ error: toSimpleError(error) });
   }
 
   if (!_.isFunction(fn))
-    return callback({ isFunction: false });
+    return self.postMessage({ isFunction: false });
 
-  callback({
+  self.postMessage({
     isFunction: true,
     error: null,
     'arguments': getParameterNames(fn)
   });
 }
 
-function sendToParentWindow(data) {
-  self.postMessage(data);
-}
 
-function onMessageFromParentWindow(event) {
+self.addEventListener('message', function (event) {
 
   var message = event.data;
-  if (message.type === 'analyze' && !!message.source) {
-    analyze(message.source, sendToParentWindow);
+  if (message.type === 'analyze') {
+    analyze(message.source);
   }
 
   if (message.type === 'execute') {
-    run(message.source, message.args, sendToParentWindow);
+    run(message.source, message.args);
   }
-}
 
-self.addEventListener('message', onMessageFromParentWindow, false);
+}, false);
 
 // Tell parent window that we are ready
-sendToParentWindow({ type: 'ready'});
+self.postMessage({ type: 'ready'});
