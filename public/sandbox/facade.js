@@ -1,6 +1,36 @@
 if (typeof(Sandbox) === 'undefined') Sandbox = {};
 
+
 (function() {
+
+  function loadAsString(url, callback) {
+    var client = new XMLHttpRequest();
+    client.open('GET', url);
+    client.onreadystatechange = function() {
+      callback(client.responseText);
+    };
+    client.send();
+  }
+
+  var workerSourceCache = null;
+  function spawnWorker(callback) {
+    if (workerSourceCache === null) {
+      loadAsString('/sandbox/worker.js', function(str) {
+        workerSourceCache = str;
+        spawnWorker(callback);
+      });
+      return;
+    }
+    var blob = new Blob([workerSourceCache]);
+    var worker = new Worker(URL.createObjectURL(blob));
+    var onReady = function(e) {
+      if (e.data.type !== 'ready')
+        throw new Error('Expected first message to be ready event');
+      worker.removeEventListener("message", onReady);
+      callback(worker);
+    };
+    worker.addEventListener("message", onReady, false);
+  }
 
   Sandbox.facade = function() {
 
@@ -33,11 +63,7 @@ if (typeof(Sandbox) === 'undefined') Sandbox = {};
     };
 
     var work = function(message, callback) {
-      var worker = new Worker('/sandbox/worker.js');
-      var onReady = function(e) {
-        if (e.data.type !== 'ready')
-          throw new Error('Expected first message to be ready event');
-        worker.removeEventListener("message", onReady);
+      spawnWorker(function(worker) {
         var onData = function(e) {
           worker.removeEventListener('message', onData);
           worker.terminate();
@@ -45,8 +71,7 @@ if (typeof(Sandbox) === 'undefined') Sandbox = {};
         };
         worker.addEventListener('message', onData, false);
         worker.postMessage(message);
-      };
-      worker.addEventListener("message", onReady, false);
+      });
     };
 
     function processError(error) {

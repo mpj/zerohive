@@ -1,4 +1,6 @@
-importScripts('/vendor/underscore-1.5.1.js');
+var isFunction = function(obj) {
+  return !!(obj && obj.constructor && obj.call && obj.apply);
+};
 
 // Returns the parameter names of a function as an array of strings
 function getParameterNames(fn) {
@@ -8,8 +10,18 @@ function getParameterNames(fn) {
   return src.slice(src.indexOf('(')+1, src.indexOf(')')).match(/([^\s,]+)/g);
 }
 
+var isolatedEval = (function(src) {
+
+  // Hide worker interface and other stuff from evaled code
+  var self;
+  var importScripts;
+  var XMLHttpRequest;
+
+  return eval(src);
+}.bind({ dummy_object: true }));
+
 function evaluateAsFunction(source) {
-  return eval('[' + source +' ]')[0];
+  return isolatedEval('[' + source +' ]')[0];
 }
 
 function toSimpleError(error) {
@@ -46,7 +58,7 @@ function analyze(source) {
     return self.postMessage({ error: toSimpleError(error) });
   }
 
-  if (!_.isFunction(fn))
+  if (!isFunction(fn))
     return self.postMessage({ isFunction: false });
 
   self.postMessage({
