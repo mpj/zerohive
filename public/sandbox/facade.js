@@ -43,6 +43,8 @@ if (typeof(Sandbox) === 'undefined') Sandbox = {};
 
     var self = {};
 
+    var _worker = null;
+
     self.isFunction = ko.observable(null);
     self.errorMessage = ko.observable(null);
     self.errorLine = ko.observable(null);
@@ -71,16 +73,21 @@ if (typeof(Sandbox) === 'undefined') Sandbox = {};
       });
     };
 
+
+
     var work = function(message, callback) {
-      spawnWorker(function(worker) {
-        var onData = function(e) {
-          worker.removeEventListener('message', onData);
-          worker.terminate();
-          callback(e.data);
-        };
-        worker.addEventListener('message', onData, false);
-        worker.postMessage(message);
-      });
+      if (!_worker) {
+        return spawnWorker(function(w) {
+          _worker = w;
+          work(message, callback);
+        });
+      }
+
+      var onData = function(e) {
+        callback(e.data);
+      };
+      _worker.addEventListener('message', onData, false);
+      _worker.postMessage(message);
     };
 
     function processError(error) {
