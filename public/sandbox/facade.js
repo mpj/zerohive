@@ -21,8 +21,9 @@ if (typeof(Sandbox) === 'undefined') Sandbox = {};
       });
       return;
     }
-    var blob = new Blob([workerSourceCache]);
-    var worker = new Worker(URL.createObjectURL(blob));
+    var blob = new Blob([workerSourceCache],{ type: 'text/javascript'});
+    var objectUrl = URL.createObjectURL(blob);
+    var worker = new Worker(objectUrl);
     var onReady = function(e) {
       if (e.data.type !== 'ready')
         throw new Error('Expected first message to be ready event');
@@ -30,6 +31,12 @@ if (typeof(Sandbox) === 'undefined') Sandbox = {};
       callback(worker);
     };
     worker.addEventListener("message", onReady, false);
+
+    var wrappedTerminate = worker.terminate.bind(worker);
+    worker.terminate = function() {
+      URL.revokeObjectURL(worker.__objectUrl);
+      wrappedTerminate();
+    };
   }
 
   Sandbox.facade = function() {
