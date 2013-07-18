@@ -2,10 +2,8 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
 (function() {
 
-  ZeroHive.caseViewModel = function(argumentNames) {
+  ZeroHive.caseViewModel = function() {
     var self = {};
-
-    argumentNames = argumentNames || [];
 
     var sandbox = Sandbox.facade();
 
@@ -19,15 +17,17 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
     self.source = ko.observable(null);
 
-    self.functionArguments = argumentNames.map(function(a) {
-      return {
-        name: a,
-        value: ko.observable(undefined)
-      };
-    });
+    self.functionArguments = ko.computed(function() {
+      return sandbox.functionArguments().map(function(a) {
+        return {
+          name: a,
+          value: ko.observable(undefined)
+        };
+      });
+    }) ;
 
     var argumentValues = ko.computed(function() {
-      return self.functionArguments.map(function(a) {
+      return self.functionArguments().map(function(a) {
         return a.value();
       });
     });
@@ -36,6 +36,7 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
     ko.computed(function() {
       if (self.source() === null) return;
+      sandbox.analyze(self.source());
       sandbox.execute(self.source(), argumentValues());
     });
 

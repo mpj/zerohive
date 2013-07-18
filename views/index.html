@@ -65,22 +65,18 @@
   </div>
   <textarea data-bind="codeMirror: codeMirror"></textarea>    
 
-  <div id="cases" data-bind="visible: sandbox.functionArguments()">
-    <h2>Cases</h2>
+  <div id="cases" data-bind="foreach: cases">
     <div class="case">
-      <h3>Arguments</h3>
-      <ul data-bind="foreach: newCase().functionArguments">
+      <ul data-bind="foreach: functionArguments">
         <li>
           <span data-bind="text: name"></span> =
-          <input data-bind="value: value, valueUpdate: 'afterkeydown'" />
+          <input data-bind="value: value, valueUpdate: 'afterkeydown', disable: $parent.locked" />
         </li>
       </ul>
       <div class="result">
-        <h3>Result</h3>
-        <span data-bind="text: newCase().result, css: newCase().resultClass"></span>
-        <input type="checkbox" data-bind="checked: newCase().locked" />Lock
+        <span data-bind="text: result, css: resultClass"></span>
+        <input type="checkbox" data-bind="checked: locked" />Lock
       </div>
-      
     </div>
   </div>
 

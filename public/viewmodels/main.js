@@ -13,17 +13,32 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
     self.newCase = ko.observable(null);
     self.sandbox = Sandbox.facade();
-    
+
+    self.cases = ko.observableArray();
+
     ko.computed(function() {
-      if (self.newCase() === null) return;
       var source = self.codeMirror.value();
       self.sandbox.analyze(source);
-      self.newCase().source(source);
+
+      self.cases().forEach(function(c) {
+        c.source(source);
+      });
+
+    });
+
+    var noOpenCases = ko.computed(function() {
+      return self.cases().filter(function(c) {
+        return !c.locked();
+      }).length === 0;
     });
 
     ko.computed(function() {
-      self.newCase(ZeroHive.caseViewModel(self.sandbox.functionArguments()));
+      if(noOpenCases()) setTimeout(createCase,10);
     });
+
+    function createCase() {
+      self.cases.push(ZeroHive.caseViewModel());
+    }
 
     self.notification = {
       text: ko.computed(function() {
