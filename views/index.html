@@ -42,6 +42,16 @@
       display: inline-block;
       width: 100px;
     }
+
+    .case .result span.pass {
+      color: green;
+    }
+
+    .case .result span.fail {
+      color: red;
+    }
+    
+
   </style>
 </head>
 <body>
@@ -67,7 +77,8 @@
       </ul>
       <div class="result">
         <h3>Result</h3>
-        <span data-bind="text: newCase().result"></span>
+        <span data-bind="text: newCase().result, css: newCase().resultClass"></span>
+        <input type="checkbox" data-bind="checked: newCase().locked" />Lock
       </div>
       
     </div>
