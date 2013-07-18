@@ -11,24 +11,18 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
       '  return x * y;\n' +
       '}');
 
-    self.sandbox = Sandbox.facade();
-
     self.newCase = ko.observable(null);
+    self.sandbox = Sandbox.facade();
+    
+    ko.computed(function() {
+      if (self.newCase() === null) return;
+      var source = self.codeMirror.value();
+      self.sandbox.analyze(source);
+      self.newCase().source(source);
+    });
 
     ko.computed(function() {
       self.newCase(ZeroHive.caseViewModel(self.sandbox.functionArguments()));
-    });
-
-    ko.computed(function() {
-      self.sandbox.analyze(self.codeMirror.value());
-    });
-
-    ko.computed(function() {
-      if (self.newCase() === null) return;
-      var argumentValues = self.newCase().functionArguments.map(function(a) {
-        return a.value();
-      });
-      self.sandbox.execute(self.codeMirror.value(), argumentValues);
     });
 
     self.notification = {

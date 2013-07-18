@@ -45,6 +45,8 @@ if (typeof(Sandbox) === 'undefined') Sandbox = {};
     self.result = ko.observable(null);
 
     self.analyze = function(source) {
+      if (typeof source !== 'string')
+        throw new Error('analyze expected source to be of type string, but was ' + source);
       work({ type: 'analyze', source: source }, function(data) {
         processError(data.error);
         self.isFunction(data.isFunction);
