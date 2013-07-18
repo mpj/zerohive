@@ -57,7 +57,7 @@ if (typeof(Sandbox) === 'undefined') Sandbox = {};
       if (typeof source !== 'string')
         throw new Error('analyze expected source to be of type string, but was ' + source);
       work({ type: 'analyze', source: source }, function(data) {
-        processError(data.error);
+        processAnyError(data.error);
         self.isFunction(data.isFunction);
         if (!!data['arguments'] && !_.isEqual(self.functionArguments(), data['arguments'])) {
           self.functionArguments(data['arguments']);
@@ -65,10 +65,9 @@ if (typeof(Sandbox) === 'undefined') Sandbox = {};
       });
     };
 
-    self.execute = function(source, args) {
-
-      work({ type: 'execute', source: source, args: args }, function(data) {
-        processError(data.error);
+    self.execute = function(source, setupSource) {
+      work({ type: 'execute', source: source, setupSource: setupSource }, function(data) {
+        processAnyError(data.error);
         self.result(data.result);
       });
     };
@@ -83,14 +82,14 @@ if (typeof(Sandbox) === 'undefined') Sandbox = {};
         });
       }
 
-      var onData = function(e) {
+      var onData = function(e) {  
         callback(e.data);
       };
       _worker.addEventListener('message', onData, false);
       _worker.postMessage(message);
     };
 
-    function processError(error) {
+    function processAnyError(error) {
       if (!!error) {
         self.errorMessage(error.message);
         self.errorLine(error.line || null);

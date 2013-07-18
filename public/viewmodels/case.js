@@ -7,7 +7,10 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
     var sandbox = Sandbox.facade();
 
+    self.codeMirror = ZeroHive.codeMirrorViewModel();
+
     var lockedResult = ko.observable(null);
+    var setupSource = ko.observable(null);
 
     self.locked = ko.observable(false);
     self.locked.subscribe(function(l) {
@@ -18,26 +21,18 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     self.source = ko.observable(null);
 
     self.functionArguments = ko.computed(function() {
-      return sandbox.functionArguments().map(function(a) {
-        return {
-          name: a,
-          value: ko.observable(undefined)
-        };
+      var src = '';
+      sandbox.functionArguments().forEach(function(a) {
+        src += a + ' = undefined\n';
       });
-    }) ;
-
-    var argumentValues = ko.computed(function() {
-      return self.functionArguments().map(function(a) {
-        return a.value();
-      });
+      self.codeMirror.value(src);
     });
 
-    argumentValues.subscribe(function() { self.locked(false); });
 
     ko.computed(function() {
       if (self.source() === null) return;
       sandbox.analyze(self.source());
-      sandbox.execute(self.source(), argumentValues());
+      sandbox.execute(self.source(), self.codeMirror.value());
     });
 
     var pass = ko.computed(function() {

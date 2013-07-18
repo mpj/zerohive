@@ -10,6 +10,22 @@ function getParameterNames(fn) {
   return src.slice(src.indexOf('(')+1, src.indexOf(')')).match(/([^\s,]+)/g);
 }
 
+var isolatedEvalVars = (function(src, variableNames) {
+  var i;
+  for (i=0;i<variableNames.length;i++) {
+    eval('var ' + variableNames[i]);
+  }
+
+  eval(src);
+
+  var values = [];
+  for (i=0;i<variableNames.length;i++) {
+    values.push(eval(variableNames[i]));
+  }
+
+  return values;
+}).bind({ dummy_object: true });
+
 var isolatedEval = (function(src) {
 
   // Hide worker interface and other stuff from evaled code
@@ -34,11 +50,11 @@ function toSimpleError(error) {
   return simpleError;
 }
 
-function run(source, args) {
+function run(source, setupSource) {
   var result;
   try {
-    args = args.map(function(a) { return eval(a); });
-    result = evaluateAsFunction(source).apply(null, args);
+    var fn = evaluateAsFunction(source);
+    result = fn.apply(null, isolatedEvalVars(setupSource, getParameterNames(fn)));
   } catch (error) {
     return self.postMessage({
       error: toSimpleError(error),
@@ -77,7 +93,7 @@ self.addEventListener('message', function (event) {
   }
 
   if (message.type === 'execute') {
-    run(message.source, message.args);
+    run(message.source, message.setupSource);
   }
 
 }, false);
