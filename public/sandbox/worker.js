@@ -11,6 +11,13 @@ function getParameterNames(fn) {
 }
 
 var isolatedEvalVars = (function(src, variableNames) {
+  
+// Hide worker interface and other stuff from evaled code
+  var self;
+  var importScripts;
+  var XMLHttpRequest;
+
+  // scope variable names
   var i;
   for (i=0;i<variableNames.length;i++) {
     eval('var ' + variableNames[i]);

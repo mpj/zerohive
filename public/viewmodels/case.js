@@ -7,7 +7,7 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
     var sandbox = Sandbox.facade();
 
-    self.codeMirror = ZeroHive.codeMirrorViewModel();
+    self.codeMirrorSetup = ZeroHive.codeMirrorViewModel();
 
     var lockedResult = ko.observable(null);
     var setupSource = ko.observable(null);
@@ -25,14 +25,14 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
       sandbox.functionArguments().forEach(function(a) {
         src += a + ' = undefined\n';
       });
-      self.codeMirror.value(src);
+      self.codeMirrorSetup.value(src);
     });
 
 
     ko.computed(function() {
       if (self.source() === null) return;
       sandbox.analyze(self.source());
-      sandbox.execute(self.source(), self.codeMirror.value());
+      sandbox.execute(self.source(), self.codeMirrorSetup.value());
     });
 
     var pass = ko.computed(function() {

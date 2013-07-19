@@ -17,7 +17,7 @@
       padding: 20px;
     }
 
-    .CodeMirror {
+    #mainEditor .CodeMirror {
       position: absolute;
       top: 40px;
       background-color: #EBEBEB;
@@ -25,6 +25,12 @@
       font-family: Consolas, Courier;
       font-size: 18px;
       padding: 20px;
+    }
+
+    .case .CodeMirror {
+      background-color: #EBEBEB;
+      height: 100px;
+      width: 280px;
     }
 
     #notification.error {
@@ -63,16 +69,13 @@
       visible: notification.visible,
       css: notification.class">
   </div>
-  <textarea data-bind="codeMirror: codeMirror"></textarea>    
+  <span id="mainEditor">
+    <textarea data-bind="codeMirror: codeMirror"></textarea>    
+  </span>
 
   <div id="cases" data-bind="foreach: cases">
     <div class="case">
-      <ul data-bind="foreach: functionArguments">
-        <li>
-          <span data-bind="text: name"></span> =
-          <input data-bind="value: value, valueUpdate: 'afterkeydown', disable: $parent.locked" />
-        </li>
-      </ul>
+      <textarea data-bind="codeMirror: codeMirrorSetup"></textarea>
       <div class="result">
         <span data-bind="text: result, css: resultClass"></span>
         <input type="checkbox" data-bind="checked: locked" />Lock
