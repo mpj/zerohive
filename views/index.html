@@ -17,10 +17,15 @@
       padding: 20px;
     }
 
+    /* Styling that makes CodeMirror resize dynamically after it's contenxt */
+    .CodeMirror        { height: auto; }
+    .CodeMirror-scroll { overflow-y: hidden; 
+                         overflow-x: auto; }
+
     #mainEditor .CodeMirror {
       position: absolute;
       top: 40px;
-      background-color: #EBEBEB;
+      background-color: #F2F9FF;
       width: 820px;
       font-family: Consolas, Courier;
       font-size: 18px;
@@ -28,9 +33,9 @@
     }
 
     .case .CodeMirror {
-      background-color: #EBEBEB;
-      height: 100px;
+      background-color: #F2F9FF;
       width: 280px;
+      margin-top: 15px;
     }
 
     #notification.error {
@@ -49,12 +54,12 @@
       width: 100px;
     }
 
-    .case .result span.pass {
-      color: green;
+    .case .result.pass .CodeMirror {
+      background-color: green;
     }
 
-    .case .result span.fail {
-      color: red;
+    .case .result.fail .CodeMirror {
+      background-color: red;
     }
     
 
@@ -76,8 +81,8 @@
   <div id="cases" data-bind="foreach: cases">
     <div class="case">
       <textarea data-bind="codeMirror: codeMirrorSetup"></textarea>
-      <div class="result">
-        <span data-bind="text: result, css: resultClass"></span>
+      <div class="result" data-bind="css: resultClass">
+        <textarea data-bind="codeMirror: codeMirrorVerification"></textarea>
         <input type="checkbox" data-bind="checked: locked" />Lock
       </div>
     </div>
@@ -87,6 +92,7 @@
     var viewModel = ZeroHive.mainViewModel();
     ko.applyBindings(viewModel);
   </script>
+  <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
 </body>
 
 </html>

@@ -8,6 +8,9 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     var sandbox = Sandbox.facade();
 
     self.codeMirrorSetup = ZeroHive.codeMirrorViewModel();
+    self.codeMirrorVerification = ZeroHive.codeMirrorViewModel();
+
+    
 
     var lockedResult = ko.observable(null);
     var setupSource = ko.observable(null);
@@ -49,6 +52,11 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     self.resultClass = ko.computed(function() {
       if (pass() === null) return '';
       return pass() ? 'pass' : 'fail';
+    });
+
+    ko.computed(function() {
+      var resultAsString = '' + lockedResult() || sandbox.result();
+      self.codeMirrorVerification.value(resultAsString);
     });
 
     return self;
