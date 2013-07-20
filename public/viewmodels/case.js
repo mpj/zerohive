@@ -23,8 +23,6 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
     self.selected = ko.observable(false);
 
-
-
     self.source = ko.observable(null);
 
     self.functionArguments = ko.computed(function() {
@@ -59,14 +57,12 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     });
 
      self.iconClass = ko.computed(function() {
-      if (expectedResult() === null) return 'icon-star-alt';
-      if (!pass()) return 'icon-remove-sign';
-      return 'icon-ok-sign';
-    /*)
-            <i class="icon-star-alt"></i>
-            <i class="icon-remove-circle"></i>
-            <i class="icon-play-alt"></i>
-            <i class="icon-play-circle"></i>-->*/
+      if (expectedResult() === null) 
+        return self.selected() ? 'icon-error-alt' : 'icon-error';
+      if (!pass()) {
+        return self.selected() ? 'icon-remove-sign' : 'icon-remove-circle';
+      }
+      return self.selected() ? 'icon-ok-sign' : 'icon-ok-circle';
     })
 
 

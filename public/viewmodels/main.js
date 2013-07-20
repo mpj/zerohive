@@ -19,8 +19,6 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
       self.activeCase(this);
     }
 
-
-
     self.cases = ko.observableArray();
 
     ko.computed(function() {
@@ -33,7 +31,17 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
     });
 
-    self.activeCase = ko.observable(null);
+    self._activeCase = ko.observable(null);
+    self.activeCase = ko.computed({
+      read: function() {
+        return self._activeCase();
+      },
+      write: function(c) {
+        if (self._activeCase()) self._activeCase().selected(false);
+        self._activeCase(c);
+        self._activeCase().selected(true);
+      }
+    })
     
 
     var newCases = ko.computed(function() {
