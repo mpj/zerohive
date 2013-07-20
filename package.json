@@ -1,8 +1,7 @@
 {
-    "name": "zero-hive"
+ "name": "zero-hive"
   , "private": true
   , "dependencies": {
-      "express": "2.5.8"
-    , "jade": ">= 0.0.1"
+    "connect": "2.8.4"
   }
 }
