@@ -1,0 +1,127 @@
+html {
+  background-image: url(/images/background-blurred.jpg);
+  background-size: 100% 100%;
+}
+
+body {
+  
+}
+
+.editor {
+  background-color: white;
+  opacity: 0.75;
+  position: relative;
+}
+.editors  {
+  width: 100%;
+  height: 100%;
+
+}
+.editors .column {
+  width: 48%;
+  float: left;
+  display: inline-block;
+  height: 100%;
+  padding-right: 1%;
+  padding-left: 1%;
+}
+
+.arrow:after {
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+.arrow.left:after {
+  right: 100%;
+  border-color: rgba(255, 255, 255, 0);
+  border-right-color: #ffffff;
+  border-width: 20px;
+  top: 30px;
+  margin-top: -20px;
+}
+
+.arrow.bottom:after {
+  top: 100%;
+  border-color: rgba(255, 255, 255, 0);
+  border-top-color: #ffffff;
+  border-width: 20px;
+  left: 30px;
+  margin-left: -20px;
+}
+
+
+
+.editor.source, .editor.setup        { height: 73%; margin-top: 3%; }
+.editor.result, .editor.verification { height: 22%; margin-top: 3%; }
+
+
+
+.CodeMirror {
+  background: none;
+  font-family: Consolas, Courier;
+  font-size: 22px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.editor.verification .stateBar {
+  position: absolute;
+  top: 0;
+  height: 5px;
+  width: 100%;
+  background-color: orange;
+  z-index: 2;
+}
+
+.editor.verification .stateBar.pass {
+  background-color: green !important;
+}
+
+.editor.verification .stateBar.fail {
+  background-color: red !important;
+}
+/*
+
+
+
+.case .CodeMirror {
+  background: none;
+  width: 280px;
+  margin-top: 15px;
+}
+
+#notification.error {
+  color: red;
+}
+
+#cases {
+  position: absolute;
+  left: 890px;
+  top: 40px;
+  width: 200px;
+}
+
+#cases .case ul li input {
+  display: inline-block;
+  width: 100px;
+}
+
+
+#resultEditor, #verificationEditor {
+  width: 49.5%;
+  padding-top: 10px;
+  margin: 0;
+  border: 0;
+  float: left;
+  position: relative;
+  background: none;
+  opacity: 0.75 !important;
+}
+#resultEditor { margin-right: 1%; }
+
+
+*/

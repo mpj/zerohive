@@ -4,8 +4,7 @@ ko.bindingHandlers.codeMirror = {
 
       var options = {
         mode:  'javascript',
-        tabSize: 2,
-        viewportMargin: Infinity // Make it expand when adding more lines
+        tabSize: 2
       };
 
       var codeMirror = CodeMirror.fromTextArea(element, options);

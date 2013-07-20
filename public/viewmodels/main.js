@@ -26,10 +26,13 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
     });
 
+    self.activeCase = ko.computed(function() {
+      return self.cases()[0];
+    });
+
     var noOpenCases = ko.computed(function() {
-      return self.cases().filter(function(c) {
-        return !c.locked();
-      }).length === 0;
+        if (self.cases().length === 0) return true;
+        return false;
     });
 
     ko.computed(function() {
@@ -59,3 +62,9 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
   };
 
 })();
+
+ko.observable.fn.fill = function(fn) {
+  return ko.computed(function() {
+    this(fn());
+  }, this);
+};

@@ -11,59 +11,7 @@
   <script src="viewmodels/case.js"></script>
   <script src="sandbox/facade.js"></script>
   <script src="viewmodels/main.js"></script>
-  <style>
-
-    body {
-      padding: 20px;
-    }
-
-    /* Styling that makes CodeMirror resize dynamically after it's contenxt */
-    .CodeMirror        { height: auto; }
-    .CodeMirror-scroll { overflow-y: hidden; 
-                         overflow-x: auto; }
-
-    #mainEditor .CodeMirror {
-      position: absolute;
-      top: 40px;
-      background-color: #F2F9FF;
-      width: 820px;
-      font-family: Consolas, Courier;
-      font-size: 18px;
-      padding: 20px;
-    }
-
-    .case .CodeMirror {
-      background-color: #F2F9FF;
-      width: 280px;
-      margin-top: 15px;
-    }
-
-    #notification.error {
-      color: red;
-    }
-
-    #cases {
-      position: absolute;
-      left: 890px;
-      top: 40px;
-      width: 200px;
-    }
-
-    #cases .case ul li input {
-      display: inline-block;
-      width: 100px;
-    }
-
-    .case .result.pass .CodeMirror {
-      background-color: green;
-    }
-
-    .case .result.fail .CodeMirror {
-      background-color: red;
-    }
-    
-
-  </style>
+ <link rel="stylesheet" href="style/main.css">
 </head>
 <body>
 
@@ -74,20 +22,31 @@
       visible: notification.visible,
       css: notification.class">
   </div>
-  <span id="mainEditor">
-    <textarea data-bind="codeMirror: codeMirror"></textarea>    
-  </span>
-
-  <div id="cases" data-bind="foreach: cases">
-    <div class="case">
-      <textarea data-bind="codeMirror: codeMirrorSetup"></textarea>
-      <div class="result" data-bind="css: resultClass">
-        <textarea data-bind="codeMirror: codeMirrorVerification"></textarea>
-        <input type="checkbox" data-bind="checked: locked" />Lock
+  <div class="editors">
+    <div class="column">
+      <div class="editor source arrow bottom">
+        <textarea data-bind="codeMirror: codeMirror"></textarea>    
       </div>
+      <!-- ko if: activeCase() -->
+        <div class="editor result">
+          <textarea data-bind="codeMirror: activeCase().codeMirrorResult"></textarea>
+        </div>
+      <!-- /ko -->
+    </div>
+    <div class="column">
+      <!-- ko if: activeCase() -->
+        <div class="editor setup arrow left">
+          <textarea data-bind="codeMirror: activeCase().codeMirrorSetup"></textarea>
+        </div>
+      <!-- /ko -->
+      <!-- ko if: activeCase() -->
+        <div class="editor verification arrow left">
+          <div class="stateBar" data-bind="css: activeCase().verificationClass"></div>
+          <textarea data-bind="codeMirror: activeCase().codeMirrorVerification"></textarea>
+        </div>
+      <!-- /ko -->
     </div>
   </div>
-
   <script>
     var viewModel = ZeroHive.mainViewModel();
     ko.applyBindings(viewModel);

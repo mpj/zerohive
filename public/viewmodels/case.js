@@ -9,17 +9,11 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
     self.codeMirrorSetup = ZeroHive.codeMirrorViewModel();
     self.codeMirrorVerification = ZeroHive.codeMirrorViewModel();
+    self.codeMirrorResult = ZeroHive.codeMirrorViewModel();
 
-    
-
-    var lockedResult = ko.observable(null);
+    var expectedResult = ko.observable(null);
     var setupSource = ko.observable(null);
 
-    self.locked = ko.observable(false);
-    self.locked.subscribe(function(l) {
-      if (l) lockedResult(self.result());
-      else lockedResult(null);
-    });
 
     self.source = ko.observable(null);
 
@@ -39,25 +33,28 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     });
 
     var pass = ko.computed(function() {
-      if (lockedResult() === null) return null;
-      return _.isEqual(sandbox.result(), lockedResult());
+      // String comparison might not fly in the long run, I think
+      var expected = self.codeMirrorVerification.value();
+      if (!expected || expected.trim().length === 0) return null;
+      return _.isEqual('' + sandbox.result(), expected);
     });
 
-    self.result = ko.computed(function() {
-      if (pass() || pass() === null)
-        return sandbox.result();
-      return sandbox.result()+ '(Expected ' + lockedResult() + ')';
-    });
-
-    self.resultClass = ko.computed(function() {
+    self.verificationClass = ko.computed(function() {
       if (pass() === null) return '';
       return pass() ? 'pass' : 'fail';
     });
 
-    ko.computed(function() {
-      var resultAsString = '' + lockedResult() || sandbox.result();
-      self.codeMirrorVerification.value(resultAsString);
+    self.codeMirrorResult.value.fill(function() {
+      return '' + sandbox.result();
     });
+
+
+
+
+
+
+
+
 
     return self;
   };
