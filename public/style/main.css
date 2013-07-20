@@ -7,6 +7,29 @@ body {
   
 }
 
+.case-selector {
+  display: block;
+  height: 5%;
+  margin-top: 3%;
+  position: relative;
+}
+
+.case-selector .background {
+  background-color: white;
+  opacity: 0.2;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+
+.case-selector ul,li { margin: 0; padding: 0;}
+.case-selector li {
+  list-style: none;
+  font-size: 1.5vw;
+  padding-top: 0.25vw;
+  float: left;
+}
+
 .editor {
   background-color: white;
   opacity: 0.75;
@@ -55,9 +78,9 @@ body {
 
 
 
-.editor.source, .editor.setup        { height: 73%; margin-top: 3%; }
+.editor.source { height: 73%; margin-top: 3%; }
+.editor.setup { height: 66%; margin-top: 3%; }
 .editor.result, .editor.verification { height: 22%; margin-top: 3%; }
-
 
 
 .CodeMirror {
@@ -84,44 +107,4 @@ body {
 .editor.verification .stateBar.fail {
   background-color: red !important;
 }
-/*
 
-
-
-.case .CodeMirror {
-  background: none;
-  width: 280px;
-  margin-top: 15px;
-}
-
-#notification.error {
-  color: red;
-}
-
-#cases {
-  position: absolute;
-  left: 890px;
-  top: 40px;
-  width: 200px;
-}
-
-#cases .case ul li input {
-  display: inline-block;
-  width: 100px;
-}
-
-
-#resultEditor, #verificationEditor {
-  width: 49.5%;
-  padding-top: 10px;
-  margin: 0;
-  border: 0;
-  float: left;
-  position: relative;
-  background: none;
-  opacity: 0.75 !important;
-}
-#resultEditor { margin-right: 1%; }
-
-
-*/

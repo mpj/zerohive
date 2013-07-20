@@ -11,8 +11,18 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     self.codeMirrorVerification = ZeroHive.codeMirrorViewModel();
     self.codeMirrorResult = ZeroHive.codeMirrorViewModel();
 
-    var expectedResult = ko.observable(null);
+
+    var expectedResult = ko.computed(function() {
+      var expected = self.codeMirrorVerification.value();
+      if (expected === '') return null;
+      return expected;
+    })
+
+
     var setupSource = ko.observable(null);
+
+    self.selected = ko.observable(false);
+
 
 
     self.source = ko.observable(null);
@@ -34,9 +44,9 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
     var pass = ko.computed(function() {
       // String comparison might not fly in the long run, I think
-      var expected = self.codeMirrorVerification.value();
-      if (!expected || expected.trim().length === 0) return null;
-      return _.isEqual('' + sandbox.result(), expected);
+      
+      if (!expectedResult()) return null;
+      return _.isEqual('' + sandbox.result(), expectedResult());
     });
 
     self.verificationClass = ko.computed(function() {
@@ -48,6 +58,21 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
       return '' + sandbox.result();
     });
 
+     self.iconClass = ko.computed(function() {
+      if (expectedResult() === null) return 'icon-star-alt';
+      if (!pass()) return 'icon-remove-sign';
+      return 'icon-ok-sign';
+    /*)
+            <i class="icon-star-alt"></i>
+            <i class="icon-remove-circle"></i>
+            <i class="icon-play-alt"></i>
+            <i class="icon-play-circle"></i>-->*/
+    })
+
+
+    self.isNew = ko.computed(function() {
+      return !expectedResult();
+    })
 
 
 

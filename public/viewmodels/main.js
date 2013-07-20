@@ -14,6 +14,13 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     self.newCase = ko.observable(null);
     self.sandbox = Sandbox.facade();
 
+
+    self.caseClicked = function() {
+      self.activeCase(this);
+    }
+
+
+
     self.cases = ko.observableArray();
 
     ko.computed(function() {
@@ -26,17 +33,17 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
     });
 
-    self.activeCase = ko.computed(function() {
-      return self.cases()[0];
-    });
+    self.activeCase = ko.observable(null);
+    
 
-    var noOpenCases = ko.computed(function() {
-        if (self.cases().length === 0) return true;
-        return false;
+    var newCases = ko.computed(function() {
+        return self.cases().filter(function(c) {
+          return c.isNew();
+        }).length === 0;
     });
 
     ko.computed(function() {
-      if(noOpenCases()) setTimeout(createCase,10);
+      if(newCases()) setTimeout(createCase,10);
     });
 
     function createCase() {

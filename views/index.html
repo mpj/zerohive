@@ -11,6 +11,7 @@
   <script src="viewmodels/case.js"></script>
   <script src="sandbox/facade.js"></script>
   <script src="viewmodels/main.js"></script>
+  <link rel="stylesheet" href="style/elusive-webfont.css">
  <link rel="stylesheet" href="style/main.css">
 </head>
 <body>
@@ -34,6 +35,18 @@
       <!-- /ko -->
     </div>
     <div class="column">
+      <div class="case-selector">
+        <div class="background"></div>
+        <ul data-bind="foreach: cases">
+          <li><img src="/images/empty.png" alt="" style="width:1px; height:100%; vertical-align:middle" />
+            <span data-bind="click: $root.caseClicked">
+              <i data-bind="css: iconClass"></i>
+            </span>
+
+          </li>
+        </ul>
+        
+      </div>
       <!-- ko if: activeCase() -->
         <div class="editor setup arrow left">
           <textarea data-bind="codeMirror: activeCase().codeMirrorSetup"></textarea>
