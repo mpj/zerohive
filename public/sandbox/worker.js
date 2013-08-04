@@ -73,31 +73,9 @@ function run(source, setupSource) {
   });
 }
 
-function analyze(source) {
-  var fn;
-  try {
-    fn = evaluateAsFunction(source);
-  } catch (error) {
-    return self.postMessage({ error: toSimpleError(error) });
-  }
-
-  if (!isFunction(fn))
-    return self.postMessage({ isFunction: false });
-
-  self.postMessage({
-    isFunction: true,
-    error: null,
-    'arguments': getParameterNames(fn)
-  });
-}
-
-
 self.addEventListener('message', function (event) {
 
   var message = event.data;
-  if (message.type === 'analyze') {
-    analyze(message.source);
-  }
 
   if (message.type === 'execute') {
     run(message.source, message.setupSource);

@@ -51,18 +51,27 @@ if (typeof(Sandbox) === 'undefined') Sandbox = {};
     self.errorColumn = ko.observable(null);
     self.functionArguments = ko.observable([]);
 
-    self.result = ko.observable(null);
+    self.result = ko.observable(null);    
 
     self.analyze = function(source) {
       if (typeof source !== 'string')
         throw new Error('analyze expected source to be of type string, but was ' + source);
-      work({ type: 'analyze', source: source }, function(data) {
-        processAnyError(data.error);
-        self.isFunction(data.isFunction);
-        if (!!data['arguments'] && !_.isEqual(self.functionArguments(), data['arguments'])) {
-          self.functionArguments(data['arguments']);
-        }
-      });
+      try {
+        var syntax = esprima.parse(source);
+      } catch (error) { return processAnyError(error); }
+      processAnyError(null);
+      self.isFunction(
+        syntax.body.length === 1 && 
+        syntax.body[0].type === "FunctionDeclaration"
+      )
+      if (self.isFunction()) {
+        var declaration = syntax.body[0];
+        var argumentNames = declaration.params.map(function(p) {
+          return p.name;
+        });
+        if (!_.isEqual(self.functionArguments(), argumentNames))
+          self.functionArguments(argumentNames);
+      }
     };
 
     self.execute = function(source, setupSource) {
