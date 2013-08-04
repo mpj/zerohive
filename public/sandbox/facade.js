@@ -3,47 +3,10 @@ if (typeof(Sandbox) === 'undefined') Sandbox = {};
 
 (function() {
 
-  function loadAsString(url, callback) {
-    var client = new XMLHttpRequest();
-    client.open('GET', url);
-    client.onreadystatechange = function() {
-      callback(client.responseText);
-    };
-    client.send();
-  }
-
-  var workerSourceCache = null;
-  function spawnWorker(callback) {
-    if (workerSourceCache === null) {
-      loadAsString('/sandbox/worker.js', function(str) {
-        workerSourceCache = str;
-        spawnWorker(callback);
-      });
-      return;
-    }
-    var blob = new Blob([workerSourceCache],{ type: 'text/javascript'});
-    var objectUrl = URL.createObjectURL(blob);
-    var worker = new Worker(objectUrl);
-    var onReady = function(e) {
-      if (e.data.type !== 'ready')
-        throw new Error('Expected first message to be ready event');
-      worker.removeEventListener("message", onReady);
-      callback(worker);
-    };
-    worker.addEventListener("message", onReady, false);
-
-    var wrappedTerminate = worker.terminate.bind(worker);
-    worker.terminate = function() {
-      URL.revokeObjectURL(worker.__objectUrl);
-      wrappedTerminate();
-    };
-  }
 
   Sandbox.facade = function() {
 
     var self = {};
-
-    var _worker = null;
 
     self.isFunction = ko.observable(null);
     self.errorMessage = ko.observable(null);
@@ -75,27 +38,14 @@ if (typeof(Sandbox) === 'undefined') Sandbox = {};
     };
 
     self.execute = function(source, setupSource) {
-      work({ type: 'execute', source: source, setupSource: setupSource }, function(data) {
-        processAnyError(data.error);
-        self.result(data.result);
-      });
-    };
-
-
-
-    var work = function(message, callback) {
-      if (!_worker) {
-        return spawnWorker(function(w) {
-          _worker = w;
-          work(message, callback);
-        });
-      }
-
-      var onData = function(e) {  
-        callback(e.data);
-      };
-      _worker.addEventListener('message', onData, false);
-      _worker.postMessage(message);
+      Sandbox.getVariables(setupSource, self.functionArguments.peek(), function(error, variables) {
+        processAnyError(error);
+        if (variables)
+          Sandbox.runFunction(source, variables, function(error, result) {
+            processAnyError(error);
+            if (result && !_.isEqual(result, self.result())) self.result(result);
+          })
+      })
     };
 
     function processAnyError(error) {
