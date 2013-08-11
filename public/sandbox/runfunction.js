@@ -1,20 +1,23 @@
 importScripts('/vendor/esprima.js');
 importScripts('/sandbox/expose-to-parent.js');
 
+// Takes the string of a function, parses it to an 
+// actual function and calls it with the arguments
+// in argumentArray.
 function runFunction(source, argumentArray) {
   if (typeof source !== 'string')
     throw new Error('runFunction expected source ' +
-        'to be of type string, but was ' + source);
-  return parseFunction(source).apply(null, argumentArray);
+        'to be of type string, but was ' + source)
+  return parseFunction(source).apply(null, argumentArray)
 }
 
 // Takes the string source of a function and returns a function object
 function parseFunction(source) {
-  var firstBracketIndex = source.indexOf('{');
-  var lastBracketIndex = source.lastIndexOf('}');
-  var body = source.substring(firstBracketIndex + 1, lastBracketIndex);
-  var parameterNames = extractParameterNames(source);
-  return applyToConstructor(Function, parameterNames.concat(body));
+  var firstBracketIndex = source.indexOf('{')
+  var lastBracketIndex = source.lastIndexOf('}')
+  var body = source.substring(firstBracketIndex + 1, lastBracketIndex)
+  var parameterNames = extractParameterNames(source)
+  return applyToConstructor(Function, parameterNames.concat(body))
 }
 
 // A function used to call a constructor with an array

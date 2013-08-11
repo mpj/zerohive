@@ -5,7 +5,7 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
   ZeroHive.caseViewModel = function(conditions, expectation) {
     var self = {};
 
-    var sandbox = Sandbox.facade();
+    var sandbox = createSandbox();
 
     self.codeMirrorSetup = ZeroHive.codeMirrorViewModel();
     self.codeMirrorVerification = ZeroHive.codeMirrorViewModel();
@@ -84,7 +84,7 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
       self.codeMirrorSetup.value(conditions);
       self.codeMirrorVerification.value(expectation);
     }
-    
+
     return self;
   };
 

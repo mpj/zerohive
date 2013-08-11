@@ -8,7 +8,7 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     self.codeMirror = ZeroHive.codeMirrorViewModel();
 
     self.newCase = ko.observable(null);
-    self.sandbox = Sandbox.facade();
+    self.sandbox = createSandbox();
 
 
     self.caseClicked = function() {
