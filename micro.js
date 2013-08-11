@@ -2,7 +2,8 @@ var connect = require('connect')
   , http = require('http')
   , fs = require('fs')
   , mongodb = require('mongodb')
-  , ObjectID = mongodb.ObjectID 
+  , ObjectID = mongodb.ObjectID
+  , _ = require('underscore')
 
 var cacheAge = 0;
 if (process.env.NODE_ENV === 'production') {
@@ -18,7 +19,7 @@ var app = connect()
       
       playgroundInsert({ 
         versions: [{ 
-          source: 'DEFAULT_CODE',
+          body: 'DEFAULT_CODE',
           cases: [{
             conditions: 'CONDITIONS_DEFAULT',
             expectation: 'DEFAULT_EXPECTATION'
@@ -26,7 +27,7 @@ var app = connect()
         }]
       }, function(playground) {
         res.writeHead(302, {
-          'Location': '/' + playground._id
+          'Location': '/' + playground._id + '/1'
         });
         res.end();
       })
@@ -63,7 +64,7 @@ var app = connect()
 
         
       } else if (req.method === 'POST') {
-        playgroundPost(req)
+        playgroundPost(req, res)
       }
     }
     
@@ -108,17 +109,19 @@ function playgroundUpdate(opts) {
 // Saves a new version to the given playground. Yields either 
 // error or an integer representing the new version number
 function saveNewVersion(id, groundVersionState, callback) {
+  var mid = new ObjectID(id)
   getDatabase(function(db) {
     var c = db.collection('playgrounds');
-    c.update(id, {
-      $push: { versions: cleaned }
+    c.update({ _id: mid }, {
+      '$push': { 'versions': groundVersionState }
     }, {
       safe: true
     }, function(err, result) {
-      if (err) {
-        callback(err, null)
-      }
-      c.findOne(id, function(err, item) {
+        console.log("pushjed!", err, result, mid, groundVersionState)
+      if (err) 
+        return callback(err, null)
+      
+      c.findOne({'_id': mid }, function(err, item) {
         var newVersionNumber = item.versions.length
         callback(null, newVersionNumber);
       })
@@ -126,45 +129,58 @@ function saveNewVersion(id, groundVersionState, callback) {
   })
 }
 
-function playgroundPost(res) {
+function playgroundPost(req,res) {
 
+  // assuming '/{id}'
   var id = req.url.replace('/', '');
-  var ground = req.data; // probably need to parse some json here or something.
 
-  var cleaned = {};
+  // Read Body when Available
+  req.on("readable", function(){
+    req.body = req.read();
+  });
 
-  var badRequest = function(message) {
-    res.writeHead(400);
-    res.end(message);
-  }
+  // Do something with it
+  req.on("end", function(){
+    var body = JSON.parse(req.body.toString());
+    var ground = body.ground;
+    
+    var cleaned = {};
 
-  if (!_.isString(ground.body))
-    return badRequest('Property body must be a string')
-  cleaned.body = ground.body;
+    var badRequest = function(message) {
+      res.writeHead(400);
+      res.end(message);
+    }
 
-  if(ground.cases) {
-    cleaned.cases = [];
-    ground.cases.forEach(function(c) {
+    if (!_.isString(ground.body))
+      return badRequest('Property body must be a string')
+    cleaned.body = ground.body;
 
-      if (!_.isString(c.conditions))
-        return badRequest('Property conditions must be a string')
+    if(ground.cases) {
+      cleaned.cases = [];
+      ground.cases.forEach(function(c) {
 
-      if (!_.isString(c.verify))
-        return badRequest('Property verify must be a string')
+        if (!_.isString(c.conditions))
+          return badRequest('Property conditions must be a string')
 
-      cleaned.cases.push({
-        conditions: c.conditions,
-        verify: c.verify
-      });
+        if (!_.isString(c.expectation))
+          return badRequest('Property verify must be a string')
 
+        cleaned.cases.push({
+          conditions: c.conditions,
+          expectation: c.expectation
+        });
+
+      })
+    }
+
+    saveNewVersion(id, cleaned, function(error, newVersionNumber) {
+      if (error) console.warn("saveNewVersion error", error);
+      var CREATED = 201
+      var location = '/' + id + '/' + newVersionNumber
+      res.writeHead(CREATED, { 'Location': location })
+      res.end()
     })
-  }
 
-  saveNewVersion(id, cleaned, function(error, newVersionNumber) {
-    var CREATED = 201
-    var location = '/' + id + '/' + newVersionNumber
-    res.writeHead(CREATED, { 'Location': location })
-    res.end()
   })
   
 }

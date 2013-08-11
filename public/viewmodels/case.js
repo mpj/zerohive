@@ -2,7 +2,7 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
 (function() {
 
-  ZeroHive.caseViewModel = function() {
+  ZeroHive.caseViewModel = function(conditions, expectation) {
     var self = {};
 
     var sandbox = Sandbox.facade();
@@ -26,6 +26,10 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     self.source = ko.observable(null);
 
     self.functionArguments = ko.computed(function() {
+      if (self.codeMirrorSetup.value() !== '')  {
+        // Don't overwrite if there is an existing value
+        return
+      }
       var src = '';
       sandbox.functionArguments().forEach(function(a) {
         src += a + ' = undefined\n';
@@ -66,9 +70,15 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     })
 
 
-    self.isNew = ko.computed(function() {
-      return !expectedResult();
+    self.isEdited = ko.computed(function() {
+      return  self.codeMirrorSetup.isEdited() || 
+              self.codeMirrorVerification.isEdited()
     })
+
+    if (conditions && expectation) {
+      self.codeMirrorSetup.value(conditions);
+      self.codeMirrorVerification.value(expectation);
+    }
 
 
 

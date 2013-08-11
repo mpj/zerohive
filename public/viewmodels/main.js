@@ -6,10 +6,6 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     var self = {};
 
     self.codeMirror = ZeroHive.codeMirrorViewModel();
-    self.codeMirror.value(
-      'function multiply(x, y) {\n' +
-      '  return x * y;\n' +
-      '}');
 
     self.newCase = ko.observable(null);
     self.sandbox = Sandbox.facade();
@@ -44,18 +40,19 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     })
     
 
-    var newCases = ko.computed(function() {
+
+    var hasEmptyCases = ko.computed(function() {
         return self.cases().filter(function(c) {
-          return c.isNew();
-        }).length === 0;
+          return !c.isEdited();
+        }).length > 0;
     });
 
     ko.computed(function() {
-      if(newCases()) setTimeout(createCase,10);
+      if(!hasEmptyCases()) setTimeout(createCase,10);
     });
 
-    function createCase() {
-      self.cases.push(ZeroHive.caseViewModel());
+    function createCase(conditions, expectation) {
+      self.cases.push(ZeroHive.caseViewModel(conditions, expectation));
     }
 
     self.notification = {
@@ -73,6 +70,67 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
       class: 'error'
     };
 
+    self.saveClicked = function() {
+      var m = document.URL.match(/(\w+)\/(\w+)$/);
+      var id = m[1];
+
+      var ground = {
+        body: self.codeMirror.value(),
+        cases: []
+      }
+
+      self.cases().forEach(function(c) {
+        var setupSource = c.codeMirrorSetup.value()
+        var verificationSource = c.codeMirrorVerification.value();
+        ground.cases.push({
+          conditions: setupSource,
+          expectation: verificationSource
+        })
+      })
+
+      post('/' + id, {ground: ground }, function(responseText, location) {
+        window.history.pushState("SOMESTATE", "Title", location);
+      })
+    }
+
+
+
+    var xhr = function() {
+      var xhr = new XMLHttpRequest()
+      var IS_FINISHED = 4
+      return function( method, url, data, callback ) {
+          xhr.onreadystatechange = function() {
+
+            if ( xhr.readyState === IS_FINISHED ) {
+              var location = xhr.getResponseHeader('Location');
+              callback( xhr.responseText , location)
+            }
+              
+          }
+          xhr.open( method, url )
+          xhr.send(JSON.stringify(data));
+      }
+    }()
+
+    var post = function(url, data, callback) {
+      return xhr('POST', url, data, callback);
+    }
+
+    var m = document.URL.match(/(\w+)\/(\w+)$/);
+    var id = m[1];
+    var versionNumber = m[2];
+    var path = '/' + id + '/' + versionNumber + '.json';
+    xhr('GET', path, null, function(str) {
+      var obj = JSON.parse(str);
+      if (!obj.body) {
+        console.log("body was null", obj)
+      }
+      obj.cases.forEach(function(c) {
+        createCase(c.conditions, c.expectation);
+      })
+      self.codeMirror.value(obj.body);
+    });
+
     return self;
   };
 
@@ -83,3 +141,5 @@ ko.observable.fn.fill = function(fn) {
     this(fn());
   }, this);
 };
+
+ko.computed.fn.fill = ko.observable.fn.fill

@@ -9,29 +9,34 @@ ko.bindingHandlers.codeMirror = {
 
       element.__codeMirror = CodeMirror.fromTextArea(element, options);
 
+      // When disposing...
       ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
         
         // Get rid of the element created by codemirror
         var wrapper = element.__codeMirror.getWrapperElement();
         wrapper.parentNode.removeChild(wrapper);
 
-        var eventHandler = element.__codeMirror.__onChange;
-        if (eventHandler) vm.off('change',  eventHandler);
+        var changeHandler = element.__codeMirror.__onChange;
+        if (changeHandler) element.__codeMirror.off('change', changeHandler);
+
+        var keyUpHandler = element.__codeMirror.__onKeyUp;
+        if (keyUpHandler) element.__codeMirror.off('keyup', keyUpHandler);
 
         var subscription = element.__codeMirror.__subscription;
         if (subscription) subscription.dispose();
 
-        element.__codeMirror = null;        
+        element.__codeMirror = null;    
+        element.__disposed = true    
       });
       
     },
     update: function(element, valueAccessor) {
       var codeMirror = element.__codeMirror;
 
-      var value = ko.unwrap(valueAccessor());
-      if (value === codeMirror.__viewModel) return;
+      var viewModel = ko.unwrap(valueAccessor());
+      if (viewModel === codeMirror.__viewModel) return;
 
-      codeMirror.__viewModel = value;
+      codeMirror.__viewModel = viewModel;
 
       // viewModel -> codeMirror
       if (codeMirror.__subscription) codeMirror.__subscription.dispose();
@@ -44,9 +49,14 @@ ko.bindingHandlers.codeMirror = {
       codeMirror.__onChange = function() { 
         codeMirror.__viewModel.value(codeMirror.getValue()); 
       };
+      codeMirror.__onKeyUp = function() {
+        codeMirror.__viewModel.isEdited(true);
+      }
       codeMirror.on('change', codeMirror.__onChange);
+      codeMirror.on('keyup',  codeMirror.__onKeyUp);
 
       codeMirror.setValue(codeMirror.__viewModel.value());
+
     }
 };
 
