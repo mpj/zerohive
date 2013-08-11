@@ -12,6 +12,7 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 				if (typeof v !== 'string')
 					throw new Error('Expected string but got' + v)
 				_value(v)
+				self.value.notifySubscribers(v);
 			},
 			read: _value
 		})
