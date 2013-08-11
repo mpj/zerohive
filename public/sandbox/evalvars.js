@@ -1,25 +1,20 @@
 importScripts('/sandbox/expose-to-parent.js');
 
-// Evaluates _source_ with _variableNames_ as scoped 
-// variables, and then returns the values assigned to
-// those variables as an array.
+// Evaluates a piece of source code (source)
+// and returns the values of certain variables (variables) 
+// that it assigned. It is irrelevant if the source code
+// makes use of the var keyword or not.
+// 
+// Ex:
+// evalVars('cat=5;var dog=3', ['cat', 'dog'])
+// > 5, 3
 function evalVars(source, variableNames) {
 
-  // Scope variable names
-  var i;
-  for (i = 0; i < variableNames.length; i++) {
-    eval('var ' + variableNames[i]);
-  }
+  eval(source)
 
-  eval(source);
-
-  // Evaluate the variables to get their values
-  var values = [];
-  for (i = 0; i < variableNames.length; i++) {
-    values.push(eval(variableNames[i]));
-  }
-
-  return values;
+  return variableNames.map(function(name) {
+    return eval(name)
+  })
 };
 
-exposeToParent(evalVars);
+exposeToParent(evalVars)
