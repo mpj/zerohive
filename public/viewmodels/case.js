@@ -5,7 +5,7 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
   ZeroHive.caseViewModel = function(conditions, expectation) {
     var self = {};
 
-    var sandbox = createSandbox();
+    var sandbox = self.sandbox = createSandbox();
 
     self.codeMirrorSetup = ZeroHive.codeMirrorViewModel();
     self.codeMirrorVerification = ZeroHive.codeMirrorViewModel();
@@ -39,10 +39,16 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
 
     ko.computed(function() {
-      if (self.source() === null) return;
-      sandbox.analyze(self.source());
-      sandbox.execute(self.source(), self.codeMirrorSetup.value());
-    });
+      if (self.source() !== null) sandbox.analyze(self.source());
+    })
+
+    ko.computed(function() {
+      if (sandbox.isFunction()) 
+        sandbox.execute(self.source(), self.codeMirrorSetup.value());
+    })
+
+          
+        
 
     var pass = ko.computed(function() {
       // String comparison might not fly in the long run, I think
