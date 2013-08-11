@@ -1,13 +1,19 @@
 importScripts('/vendor/esprima.js');
 importScripts('/sandbox/expose-to-parent.js');
+importScripts('/vendor/underscore-1.5.1.js');
 
 // Takes the string of a function, parses it to an 
 // actual function and calls it with the arguments
 // in argumentArray.
 function runFunction(source, argumentArray) {
-  if (typeof source !== 'string')
+  if (!_.isString(source))
     throw new Error('runFunction expected source ' +
         'to be of type string, but was ' + source)
+
+  if (!_.isArray(argumentArray))
+    throw new Error('runFunction expected argumentArray ' +
+      'to be an array, but was ' + argumentArray)
+
   return parseFunction(source).apply(null, argumentArray)
 }
 
@@ -31,9 +37,19 @@ function applyToConstructor(constructor, argumentArray) {
 // Returns the parameter names of a function source as an
 // array of strings
 function extractParameterNames(functionSource) {
-  return esprima.parse(functionSource).body[0].params.map(function(p) {
-    return p.name;
-  });
+  
+  var syntax = null;
+  try { syntax = esprima.parse(functionSource) } 
+  catch(e) {}
+
+  if ( syntax === null          ||
+       syntax.body.length !== 1 || 
+      !syntax.body[0]           || 
+       syntax.body[0].type !== 'FunctionDeclaration')
+    throw new Error('Could not parse as function: ' +  functionSource)
+
+  return syntax.body[0].params.map(function(p) { return p.name })
+  
 }
 
 exposeToParent(runFunction);
