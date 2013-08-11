@@ -41,18 +41,22 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     
 
 
-    var hasEmptyCases = ko.computed(function() {
-        return self.cases().filter(function(c) {
-          return !c.isEdited();
-        }).length > 0;
-    });
+    var shouldCreateNewCase = function() {
+      if (self.cases().length === 0)
+        return false // Not loaded yet
+      for (var i = 0; i < self.cases().length; i++)
+        if (!self.cases()[i].isEdited()) return false
+      return true;
+    };
 
     ko.computed(function() {
-      if(!hasEmptyCases()) setTimeout(createCase,10);
+      if(shouldCreateNewCase()) setTimeout(createCase,10);
     });
 
     function createCase(conditions, expectation) {
-      self.cases.push(ZeroHive.caseViewModel(conditions, expectation));
+      var c = ZeroHive.caseViewModel(conditions, expectation)
+      self.cases.push(c);
+      return c;
     }
 
     self.notification = {
@@ -126,7 +130,8 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
         console.log("body was null", obj)
       }
       obj.cases.forEach(function(c) {
-        createCase(c.conditions, c.expectation);
+        var nc = createCase(c.conditions, c.expectation);
+        nc.isEdited(true);
       })
       self.codeMirror.value(obj.body);
     });

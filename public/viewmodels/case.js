@@ -69,24 +69,22 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
       return self.selected() ? 'icon-ok-sign' : 'icon-ok-circle';
     })
 
-
-    self.isEdited = ko.computed(function() {
-      return  self.codeMirrorSetup.isEdited() || 
-              self.codeMirrorVerification.isEdited()
+    var _isEdited = ko.observable(null);
+    self.isEdited = ko.computed({
+      read: function() {
+        if (_isEdited() === null)
+          return  self.codeMirrorSetup.isEdited() || 
+                  self.codeMirrorVerification.isEdited()
+        return _isEdited()
+      },
+      write: _isEdited
     })
 
     if (conditions && expectation) {
       self.codeMirrorSetup.value(conditions);
       self.codeMirrorVerification.value(expectation);
     }
-
-
-
-
-
-
-
-
+    
     return self;
   };
 
