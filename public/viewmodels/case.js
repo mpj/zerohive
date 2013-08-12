@@ -63,7 +63,13 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     });
 
     self.codeMirrorResult.value.fill(function() {
-      return '' + sandbox.result();
+      var r = sandbox.result();
+      
+      // Let the special cases begin!
+      if (_.isArray(r) && r.length === 0)
+        return '[]';
+
+      return '' + r;
     });
 
      self.iconClass = ko.computed(function() {
