@@ -41,6 +41,7 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
     
 
 
+
     var shouldCreateNewCase = function() {
       if (self.cases().length === 0)
         return false // Not loaded yet
@@ -61,6 +62,8 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
 
     self.notification = {
       text: ko.computed(function() {
+        if (self.activeCase() && self.activeCase().sandbox.errorMessage())
+          return self.activeCase().sandbox.errorMessage();
         if (self.sandbox.isFunction() === false) return 'Your code must evaluate to a function';
         if (self.sandbox.errorMessage() !== 'null') {
           var message = self.sandbox.errorMessage();
@@ -68,6 +71,7 @@ if (typeof(ZeroHive) === 'undefined') ZeroHive = {};
             message = "Line " + self.sandbox.errorLine() + ": " + message;
           return message;
         }
+        
 
       }),
       visible: ko.observable(true),
