@@ -9,24 +9,23 @@ ko.bindingHandlers.codeMirror = {
 
       element.__codeMirror = CodeMirror.fromTextArea(element, options);
 
-      // When disposing...
+      // When knockout removes the container element from the DOM
       ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
         
         // Get rid of the element created by codemirror
         var wrapper = element.__codeMirror.getWrapperElement();
         wrapper.parentNode.removeChild(wrapper);
 
-        var changeHandler = element.__codeMirror.__onChange;
-        if (changeHandler) element.__codeMirror.off('change', changeHandler);
+        // Shut off the event listeners
+        element.__codeMirror.off('change', element.__codeMirror.__onChange);
+        element.__codeMirror.off('keyup', element.__codeMirror.__onKeyUp);
 
-        var keyUpHandler = element.__codeMirror.__onKeyUp;
-        if (keyUpHandler) element.__codeMirror.off('keyup', keyUpHandler);
+        // Stop the value subscription.
+        element.__codeMirror.__subscription.dispose();
 
-        var subscription = element.__codeMirror.__subscription;
-        if (subscription) subscription.dispose();
-
-        element.__codeMirror = null;    
-        element.__disposed = true    
+        // Finally, remove the codemirror handle to 
+        // prevent any circular reference. 
+        element.__codeMirror = null;
       });
       
     },
