@@ -40,7 +40,7 @@ function createSandbox() {
       if (variables)
         runFunction(source, variables, function(error, result) {
           processAnyError(error);
-          if (result && !_.isEqual(result, self.result())) self.result(result);
+          if (error === null && !_.isEqual(result, self.result())) self.result(result);
         })
     })
   };
