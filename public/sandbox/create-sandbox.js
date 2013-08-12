@@ -47,6 +47,7 @@ function createSandbox() {
 
   function processAnyError(error) {
     if (!!error) {
+      self.result('');
       self.errorMessage(error.message);
       self.errorLine(error.line || null);
       self.errorColumn(error.column || null);
